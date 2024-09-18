@@ -57,7 +57,7 @@ def send_status(sock_central):
             print(f"Sent status: CS {status}")
         except Exception as e:
             print(f"Error sending status: {e}")
-        time.sleep(10)  # Send status every 10 seconds
+        time.sleep(1)  # Send status every 10 seconds
 
 def main():
     # Initialize cameras
