@@ -87,13 +87,13 @@ def main():
     frame1_thread.start()
     status_thread.start()
 
-    # try:
-        # frame0_thread.join()
-        # frame1_thread.join()
-        # status_thread.join()
+    try:
+        frame0_thread.join()
+        frame1_thread.join()
+        status_thread.join()
     
-    # except KeyboardInterrupt:
-        # print("Interrupted by user")
+    except KeyboardInterrupt:
+        print("Interrupted by user")
 
 if __name__ == "__main__":
     main()
