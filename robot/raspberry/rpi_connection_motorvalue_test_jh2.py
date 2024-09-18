@@ -13,8 +13,8 @@ CENTRAL_SERVER_IP = "192.168.0.13"
 CENTRAL_SERVER_PORT = 3141
 
 # Pollination server details (if needed)
-POLLINATION_SERVER_IP = "192.168.0.42"
-POLLINATION_SERVER_PORT = 9003
+# POLLINATION_SERVER_IP = "192.168.0.42"
+# POLLINATION_SERVER_PORT = 9003
 
 def connect_to_server(ip, port):
     sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
@@ -85,25 +85,25 @@ def main():
         return # Exit if connection fails
 
     # Connect to pollination server
-    pollination_sock = connect_to_server(POLLINATION_SERVER_IP, POLLINATION_SERVER_PORT)
-    if not pollination_sock:
-        return
+    # pollination_sock = connect_to_server(POLLINATION_SERVER_IP, POLLINATION_SERVER_PORT)
+    # if not pollination_sock:
+    #     return
 
     # Create threads
     frame0_thread = threading.Thread(target = send_frame, args = (central_sock, cam0))
-    frame1_thread = threading.Thread(target = send_frame, args = (pollination_sock, cam1))
+    # frame1_thread = threading.Thread(target = send_frame, args = (pollination_sock, cam1))
     status_thread = threading.Thread(target = send_status, args = (central_sock,))
     motor_command_thread = threading.Thread(target= recieve_motor, args= (central_sock,))
 
     # Start threads
     frame0_thread.start()
-    frame1_thread.start()
+    # frame1_thread.start()
     status_thread.start()
     motor_command_thread.start()
 
     try:
         frame0_thread.join()
-        frame1_thread.join()
+        # frame1_thread.join()
         status_thread.join()
         motor_command_thread.join()
     
