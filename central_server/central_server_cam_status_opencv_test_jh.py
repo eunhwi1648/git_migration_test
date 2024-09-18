@@ -223,7 +223,7 @@ try:
                     motor_value = 1000 # 직진
                     direction = b'M'
                 
-                motor_command = b'M' + direction + motor_value.to_bytes(len(motor_value), byteorder="big") + b'\n'
+                motor_command = b'M' + direction + motor_value.to_bytes(2, byteorder="big") + b'\n'
                 server_socket.sendall(motor_command)
                 print(f"send motor_command {direction}, {motor_value}")
 
