@@ -224,7 +224,7 @@ try:
                     direction = b'M'
                 
                 motor_command = b'M' + direction + motor_value.to_bytes(2, byteorder="big") + b'\n'
-                server_socket.sendall(motor_command)
+                conn.sendall(motor_command)
                 print(f"send motor_command {direction}, {motor_value}")
 
                 # === 화면에 표시 (디버그용)
