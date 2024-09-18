@@ -21,7 +21,7 @@ def abs_sobel_thresh(img, orient='x', thresh_min=25, thresh_max=255):
 
     return binary_output
 
-# pollination server ip, port
+# central server ip, port
 server_ip = "192.168.0.13"
 server_port = 3141
 
@@ -201,6 +201,32 @@ try:
                             object_detected = 1
                             cv2.rectangle(undist_frame, (x, y), (x + w, y + h), (0, 255, 0), 2)
 
+                # === 모터 값 전송
+                # determine_motor_value
+                height, width = preprocessImage.shape
+                midpoint = width // 2
+                left_region = preprocessImage[int(height*0.6):, :midpoint]
+                right_region = preprocessImage[int(height*0.6):, midpoint:]
+
+                left_count = np.sum(left_region) / 255
+                right_count = np.sum(right_region) / 255
+
+                # 비교를 통해 차선의 위치를 판단
+                direction = b''
+                if left_count > right_count + 50:
+                    motor_value = 1500 # 우회전
+                    direction = b'R'
+                elif right_count > left_count + 50:
+                    motor_value = 500 # 좌회전
+                    direction = b'L'
+                else:
+                    motor_value = 1000 # 직진
+                    direction = b'M'
+                
+                motor_command = b'M' + direction + motor_value.to_bytes(len(motor_value), byteorder="big") + b'\n'
+                server_socket.sendall(motor_command)
+                print(f"send motor_command {direction}, {motor_value}")
+
                 # === 화면에 표시 (디버그용)
                 lane_overlay = np.zeros_like(undist_frame)
                 lane_overlay[preprocessImage == 255] = [0, 0, 255]
@@ -210,6 +236,7 @@ try:
                 cv2.imshow("Lane Detection", combined)
                 if cv2.waitKey(1) & 0xFF == ord('q'):
                     break
+
             else:
                 print("Error: Unable to decode frame")
         

@@ -62,6 +62,17 @@ def send_status(sock_central):
             print(f"Error sending status: {e}")
         time.sleep(5)  # Send status every 10 seconds
 
+def recieve_motor(sock_central):
+    while True:
+        msg = b''
+        while not msg.endswith(b'\n'):
+            msg += sock_central.recv(1)
+        if msg.startswith(b'M') and msg.endswith(b'\n'):
+            direction = msg[1].decode('utf-8')
+            motor_value = int.from_bytes(msg[2:-1], byteorder="big")
+
+            print(f"direction : {direction}, motor value : {motor_value}")
+
 def main():
     # Initialize cameras
     cam0 = cv2.VideoCapture(1)
@@ -81,19 +92,21 @@ def main():
     frame0_thread = threading.Thread(target = send_frame, args = (central_sock, cam0))
     frame1_thread = threading.Thread(target = send_frame, args = (pollination_sock, cam1))
     status_thread = threading.Thread(target = send_status, args = (central_sock,))
+    motor_command_thread = threading.Thread(target= recieve_motor, args= (central_sock,))
 
     # Start threads
     frame0_thread.start()
     frame1_thread.start()
     status_thread.start()
+    motor_command_thread.start()
 
-    try:
-        frame0_thread.join()
-        frame1_thread.join()
-        status_thread.join()
+    # try:
+    #     frame0_thread.join()
+    #     frame1_thread.join()
+    #     status_thread.join()
     
-    except KeyboardInterrupt:
-        print("Interrupted by user")
+    # except KeyboardInterrupt:
+    #     print("Interrupted by user")
 
 if __name__ == "__main__":
     main()
