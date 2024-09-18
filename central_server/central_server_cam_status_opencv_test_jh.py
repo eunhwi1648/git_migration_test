@@ -23,7 +23,8 @@ def abs_sobel_thresh(img, orient='x', thresh_min=25, thresh_max=255):
 
 # central server ip, port
 server_ip = "192.168.0.13"
-server_port = 3141
+rpi_server_port = 3141
+obs_server_port = 4040
 
 # 카메라 매트릭스과 왜곡 계수 (예시 값)
 mtx = np.array([[1.15753008e+03, 0.00000000e+00, 6.75382833e+02],
@@ -32,13 +33,19 @@ mtx = np.array([[1.15753008e+03, 0.00000000e+00, 6.75382833e+02],
 dist = np.array([[-0.26706898,  0.10305542, -0.00088013,  0.00080643, -0.19574027]])
 
 # 소켓 생성 및 바인딩
-server_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-server_socket.bind((server_ip, server_port))
-server_socket.listen(1)
-print(f"서버가 {server_ip} : {server_port}에서 대기 중입니다...")
+rpi_server_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+rpi_server_socket.bind((server_ip, rpi_server_port))
+rpi_server_socket.listen(1)
+obs_server_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+obs_server_socket.bind((server_ip, obs_server_port))
+obs_server_socket.listen(1)
+print(f"서버가 {server_ip} : {rpi_server_port}에서 대기 중입니다...")
+print(f"서버가 {server_ip} : {obs_server_port}에서 대기 중입니다...")
 
 # 클라이언트 연결 수립
-conn, addr = server_socket.accept()
+rpi_conn, addr = rpi_server_socket.accept()
+print(f"클라이언트 {addr}와 연결되었습니다.")
+obs_conn, addr = obs_server_socket.accept()
 print(f"클라이언트 {addr}와 연결되었습니다.")
 
 try:
@@ -46,13 +53,13 @@ try:
         header = b''
 
         while len(header) < 2:
-            header += conn.recv(2 - len(header))
+            header += rpi_conn.recv(2 - len(header))
         
         # frame data
         if header == b'SF':
             size_data = b''
             while len(size_data) < 4:
-                packet = conn.recv(4 - len(size_data))
+                packet = rpi_conn.recv(4 - len(size_data))
                 if not packet:
                     break
                 size_data += packet
@@ -60,12 +67,12 @@ try:
             
             frame_data = b''
             while len(frame_data) < frame_size:
-                packet = conn.recv(frame_size - len(frame_data))
+                packet = rpi_conn.recv(frame_size - len(frame_data))
                 if not packet:
                     break
                 frame_data += packet
 
-            conn.recv(1)
+            rpi_conn.recv(1)
             
             frame = cv2.imdecode(np.frombuffer(frame_data, np.uint8), cv2.IMREAD_COLOR)
 
@@ -224,8 +231,14 @@ try:
                     direction = b'M'
                 
                 motor_command = b'M' + direction + motor_value.to_bytes(2, byteorder="big") + b'\n'
-                conn.sendall(motor_command)
+                rpi_conn.sendall(motor_command)
                 print(f"send motor_command {direction}, {motor_value}")
+
+                # === Obstacle 서버로 영상 전송
+                encoded_cal_frame = cv2.imencode('.jpg', undist_frame)[1].tobytes()
+                cal_frame_size = len(frame_data)
+                head = b'SF'
+                obs_conn.sendall(head + struct.pack(">L", cal_frame_size) + encoded_cal_frame + b'\n')
 
                 # === 화면에 표시 (디버그용)
                 lane_overlay = np.zeros_like(undist_frame)
@@ -244,12 +257,12 @@ try:
         elif header == b'CS':
             status_data = b''
             while len(status_data) < 1:
-                packet = conn.recv(1 - len(status_data))
+                packet = rpi_conn.recv(1 - len(status_data))
                 if not packet:
                     break
                 status_data += packet
             
-            conn.recv(1)
+            rpi_conn.recv(1)
 
             status = int.from_bytes(status_data, byteorder="big")
             if status == 1:
@@ -261,6 +274,6 @@ except Exception as e:
     print(f"Error receiving or displaying frame: {e}")
 
 finally:
-    conn.close()
-    server_socket.close()
+    rpi_conn.close()
+    rpi_server_socket.close()
     cv2.destroyAllWindows()
