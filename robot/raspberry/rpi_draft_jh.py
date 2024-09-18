@@ -152,23 +152,23 @@ def main():
     frame0_thread = threading.Thread(target=send_frame, args=(central_sock, cam0))
     frame1_thread = threading.Thread(target=send_frame, args=(pollination_sock, cam1))
     status_thread = threading.Thread(target=send_status, args=(central_sock,))
-    motor_command_thread = threading.Thread(target=receive_motor_cmd, args=(central_sock, ser))
-    control_command_thread = threading.Thread(target=receive_control_cmds, args=(central_sock, ser))
+    # motor_command_thread = threading.Thread(target=receive_motor_cmd, args=(central_sock, ser))
+    # control_command_thread = threading.Thread(target=receive_control_cmds, args=(central_sock, ser))
 
     # Start threads
     frame0_thread.start()
     frame1_thread.start()
     status_thread.start()
-    motor_command_thread.start()
-    control_command_thread.start()
+    # motor_command_thread.start()
+    # control_command_thread.start()
 
     try:
         # Wait for threads to finish
         frame0_thread.join()
         frame1_thread.join()
         status_thread.join()
-        motor_command_thread.join()
-        control_command_thread.join()
+        # motor_command_thread.join()
+        # control_command_thread.join()
 
 
     except KeyboardInterrupt:

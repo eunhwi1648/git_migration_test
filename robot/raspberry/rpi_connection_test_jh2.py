@@ -72,7 +72,7 @@ def main():
     # Connect to pollination server
     pollination_sock = connect_to_server(POLLINATION_SERVER_IP, POLLINATION_SERVER_PORT)
     if not pollination_sock:
-       return
+        return
 
     # Create threads
     frame0_thread = threading.Thread(target = send_frame, args = (central_sock, cam0))
