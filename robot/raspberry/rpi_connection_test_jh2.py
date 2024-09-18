@@ -77,7 +77,7 @@ def main():
     # Create threads
     frame0_thread = threading.Thread(target = send_frame, args = (central_sock, cam0))
     frame1_thread = threading.Thread(target = send_frame, args = (pollination_sock, cam1))
-    status_thread = threading.Thread(target = send_status, args = (central_sock))
+    status_thread = threading.Thread(target = send_status, args = (central_sock,))
 
     # Start threads
     frame0_thread.start()
