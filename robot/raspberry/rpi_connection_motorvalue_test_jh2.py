@@ -65,7 +65,7 @@ def send_status(sock_central):
 def recieve_motor(sock_central):
     while True:
         msg = b''
-        while not msg.endswith(b'\n'):
+        while len(msg) < 5:
             msg += sock_central.recv(5)
 
         if msg.startswith(b'M') and msg.endswith(b'\n'):
