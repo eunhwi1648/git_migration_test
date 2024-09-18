@@ -37,9 +37,10 @@ try:
             
             central_server_socket.recv(1)
 
-            if frame_data is not None:
-                frame = cv2.imdecode(np.frombuffer(frame_data, np.uint8), cv2.IMREAD_COLOR)
+            frame = cv2.imdecode(np.frombuffer(frame_data, np.uint8), cv2.IMREAD_COLOR)
 
+            if frame is not None:
+                print("received")
                 cv2.imshow("received frame", frame)
                 if cv2.waitKey(1) & 0xFF == ord('q'):
                     break
