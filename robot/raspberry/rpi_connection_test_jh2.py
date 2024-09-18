@@ -61,8 +61,8 @@ def send_status(sock_central):
 
 def main():
     # Initialize cameras
-    cam0 = cv2.VideoCapture(0)
-    cam1 = cv2.VideoCapture(1)
+    cam0 = cv2.VideoCapture(1)
+    cam1 = cv2.VideoCapture(0)
 
     # Connect to central server
     central_sock = connect_to_server(CENTRAL_SERVER_IP, CENTRAL_SERVER_PORT)
