@@ -10,17 +10,24 @@ central_server_port = 4040
 
 central_server_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 central_server_socket.connect((central_server_ip, central_server_port))
+print(f"Connected to server at {central_server_ip}:{central_server_port}")
 
 try:
     while True:
         header = b''
         
         while len(header) < 2:
-            header += central_server_socket.recv(2 - len(header))
+            packet = central_server_socket.recv(2 - len(header))
+            if not packet:
+                raise ConnectionError("Connection lost while receiving header")
+            header += packet
+        print(f"Received header: {header}")
+
         
         # frame data
         if header == b'SF':
             size_data = b''
+            print("Receiving frame size...")
             while len(size_data) < 4:
                 packet = central_server_socket.recv(4 - len(size_data))
                 if not packet:
