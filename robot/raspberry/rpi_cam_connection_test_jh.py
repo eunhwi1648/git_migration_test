@@ -42,20 +42,20 @@ def send_frame(sock, cam):
         # Limit to 30 frames per second
         time.sleep(1/30)
 
-if __name__ == "__main__":
+def main():
     # Initialize cameras
     cam0 = cv2.VideoCapture(0)
     cam1 = cv2.VideoCapture(1)
 
     # Connect to central server
     central_sock = connect_to_server(CENTRAL_SERVER_IP, CENTRAL_SERVER_PORT)
-#    if not central_sock:
-     #   return # Exit if connection fails
+    if not central_sock:
+        return # Exit if connection fails
 
     # Connect to pollination server
     pollination_sock = connect_to_server(POLLINATION_SERVER_IP, POLLINATION_SERVER_PORT)
- #   if not pollination_sock:
-      #  return
+    if not pollination_sock:
+       return
 
     # Create threads
     frame0_thread = threading.Thread(target = send_frame, args = (central_sock, cam0))
@@ -64,3 +64,6 @@ if __name__ == "__main__":
     # Start threads
     frame0_thread.start()
     frame1_thread.start()
+
+if __name__ == "__main__":
+    main()
