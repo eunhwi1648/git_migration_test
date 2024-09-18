@@ -67,6 +67,8 @@ def recieve_motor(sock_central):
         msg = b''
         while not msg.endswith(b'\n'):
             msg += sock_central.recv(5)
+
+        print(msg)
         if msg.startswith(b'M') and msg.endswith(b'\n'):
             direction = msg[1].decode('utf-8')
             motor_value = int.from_bytes(msg[2:-1], byteorder="big")
