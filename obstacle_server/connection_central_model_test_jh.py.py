@@ -18,9 +18,6 @@ try:
         
         while len(header) < 2:
             packet = central_server_socket.recv(2 - len(header))
-            if not packet:
-                raise ConnectionError("Connection lost while receiving header")
-            header += packet
         print(f"Received header: {header}")
 
         
@@ -34,6 +31,7 @@ try:
                     break
                 size_data += packet
             frame_size = struct.unpack(">L", size_data)[0]
+            print(f"frame size: {frame_size}")
 
             frame_data = b''
             while len(frame_data) < frame_size:
@@ -41,6 +39,7 @@ try:
                 if not packet:
                     break
                 frame_data += packet
+            print(f"frmae_data : {frame_data}")
             
             central_server_socket.recv(1)
 
